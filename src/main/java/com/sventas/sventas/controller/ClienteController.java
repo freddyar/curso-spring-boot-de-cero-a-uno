@@ -1,5 +1,6 @@
 package com.sventas.sventas.controller;
 
+import com.sventas.sventas.exception.ModelNotFoundException;
 import com.sventas.sventas.model.Cliente;
 import com.sventas.sventas.service.ClienteService;
 import org.apache.coyote.Response;
@@ -35,11 +36,19 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> findById(@PathVariable("id") Integer idCliente) {
-        return  new ResponseEntity<>(clienteService.findById(idCliente), HttpStatus.OK);
+        Cliente cliente = clienteService.findById(idCliente);
+        if(cliente == null) {
+            throw new ModelNotFoundException("Cliente no encontrado.");
+        }
+        return  new ResponseEntity<>(cliente, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable("id") Integer idCliente) {
+    public ResponseEntity<Object> delete(@PathVariable("id") Integer idCliente) throws Exception {
+        Cliente cliente = clienteService.findById(idCliente);
+        if(cliente == null) {
+            throw new ModelNotFoundException("El cliente que desea eliminar no existe");
+        }
         clienteService.delete(idCliente);
         return new ResponseEntity<>(HttpStatus.OK);
     }
